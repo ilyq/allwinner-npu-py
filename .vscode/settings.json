@@ -1,0 +1,31 @@
+{
+  // 指定 Python 文件的默认格式化器为 Ruff
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit"
+    }
+  },
+
+  "files.exclude": {
+    "**/.ruff_cache": true
+  },
+
+  // 如果项目中使用 uv，可以设置 Python 解释器路径（可选）
+  "python.defaultInterpreterPath": "./.venv/bin/python",
+
+  // 确保 Ruff 扩展使用项目中的 ruff（而不是全局的）
+  "ruff.path": ["./.venv/bin/ruff", "ruff"],
+  "ruff.importStrategy": "fromEnvironment",
+
+  "cmake.configureOnOpen": true,
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+  "C_Cpp.errorSquiggles": "enabled",
+  "C_Cpp.autocomplete": "default",
+  "C_Cpp.suggestSnippets": true,
+  "C_Cpp.default.compilerPath": "/usr/bin/clang",
+  "C_Cpp.default.intelliSenseMode": "macos-clang-arm64",
+  "C_Cpp.default.cppStandard": "c++17",
+  "C_Cpp.default.cStandard": "c17",
+}
