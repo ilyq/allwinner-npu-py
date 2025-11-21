@@ -1,26 +1,59 @@
 cmake_minimum_required(VERSION 3.10)
 project(allwinner-npu)
 
+# 检测是否正在进行交叉编译
+message(STATUS "Cross-compiling for Android")
+
+# Android/Termux 配置
+set(PYTHON_INCLUDE_DIR "/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/python3.12")
+set(PYTHON_LIBRARY "/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/libpython3.12.so.1.0")
+
+# 设置 Android 工具链
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/3rd_party/android-ndk-r25c/build/cmake/android.toolchain.cmake")
+set(ANDROID_ABI "arm64-v8a")
+set(ANDROID_PLATFORM "android-24")
+
+
+# 完全禁用 pybind11 的自动查找
+set(PYBIND11_NOPYTHON ON)
+
 add_subdirectory(3rd_party/pybind11)
 
-# 禁止 pybind11 查找系统 Python
-set(PYBIND11_FINDPYTHON OFF CACHE BOOL "Disable automatic find_package(Python)")
-# 手动指定 Python3.10
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")  # macOS
-    set(Python3_EXECUTABLE "/Users/dong/worker/pypro/allwinner-npu-py/.venv/bin/python3.10")
-    set(Python3_INCLUDE_DIRS /Users/dong/.pyenv/versions/3.10.7/include/python3.10)
-    set(Python3_LIBRARIES /Users/dong/.pyenv/versions/3.10.7/lib)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")  # Linux
-    set(Python3_EXECUTABLE /home/sd1/work/allwinner-npu-py/.venv/bin/python)
-    set(Python3_INCLUDE_DIRS /home/sd1/.local/share/uv/python/cpython-3.10.18-linux-x86_64-gnu/include/python3.10)
-    set(Python3_LIBRARIES /home/sd1/.local/share/uv/python/cpython-3.10.18-linux-x86_64-gnu/lib)
-else()
-    message(FATAL_ERROR "Unsupported operating system: ${CMAKE_SYSTEM_NAME}")
+# 检查路径是否存在
+if(NOT EXISTS ${PYTHON_INCLUDE_DIR})
+    message(FATAL_ERROR "Python include directory not found: ${PYTHON_INCLUDE_DIR}")
 endif()
 
-find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+if(NOT EXISTS ${PYTHON_LIBRARY})
+    message(FATAL_ERROR "Python library not found: ${PYTHON_LIBRARY}")
+endif()
 
-pybind11_add_module(allwinner_npu src/main.cpp)
+# 手动创建模块
+add_library(allwinner_npu SHARED src/main.cpp)
 
-target_compile_definitions(allwinner_npu PRIVATE VERSION_INFO="${EXAMPLE_VERSION_INFO}")
+# 设置包含目录
+target_include_directories(allwinner_npu PRIVATE 
+    ${PYTHON_INCLUDE_DIR}
+    ${pybind11_INCLUDE_DIR}
+)
+
+# 设置链接库
+target_link_libraries(allwinner_npu PRIVATE ${PYTHON_LIBRARY})
+
+# 设置编译选项
+target_compile_definitions(allwinner_npu PRIVATE 
+    VERSION_INFO="${EXAMPLE_VERSION_INFO}"
+    PYBIND11_PYTHON_VERSION=3.12
+)
+
+# 设置 C++ 标准
+set_target_properties(allwinner_npu PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED ON
+)
+
+# 设置输出文件名
+set_target_properties(allwinner_npu PROPERTIES
+    PREFIX ""
+    SUFFIX ".so"
+)

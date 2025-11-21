@@ -1,0 +1,64 @@
+cmake_minimum_required(VERSION 3.10)
+project(allwinner-npu)
+
+set(PYBIND11_PYTHON_VERSION 3.12)
+set(Python3_INCLUDE_DIRS "/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/python3.12")
+set(Python3_LIBRARIES "/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/libpython3.12.so.1.0")
+
+
+# 禁止 pybind11 查找系统 Python
+set(PYBIND11_FINDPYTHON OFF CACHE BOOL "Disable automatic find_package(Python)")
+# 手动指定 Python3.10
+
+add_subdirectory(3rd_party/pybind11)
+
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/3rd_party/android-ndk-r25c/build/cmake/android.toolchain.cmake")
+set(ANDROID_ABI "arm64-v8a")
+set(ANDROID_PLATFORM "android-24")
+
+# if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")  # macOS
+#     set(Python3_EXECUTABLE "/Users/dong/worker/pypro/allwinner-npu-py/.venv/bin/python3.10")
+#     set(Python3_INCLUDE_DIRS /Users/dong/.pyenv/versions/3.10.7/include/python3.10)
+#     set(Python3_LIBRARIES /Users/dong/.pyenv/versions/3.10.7/lib)
+# elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")  # Linux
+#     # set(Python3_EXECUTABLE /home/sd1/work/allwinner-npu-py/.venv/bin/python)
+#     set(Python3_INCLUDE_DIRS /home/sd1/.local/share/uv/python/cpython-3.10.18-linux-x86_64-gnu/include/python3.10)
+#     set(Python3_LIBRARIES /home/sd1/.local/share/uv/python/cpython-3.10.18-linux-x86_64-gnu/lib/libpython3.10.so.1.0)
+# elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")  # Android/Termux
+#     # 你需要补充以下路径
+#     # set(Python3_EXECUTABLE "/data/data/com.termux/files/usr/bin/python") # Termux Python 路径（示例）
+#     # set(Python3_INCLUDE_DIRS "/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/python3.12") # 你需要补充 Python.h 所在目录
+#     # set(Python3_LIBRARIES "/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/libpython3.12.so.1.0") # 你需要补充 libpython3.x.so 所在目录
+#     # # NDK 交叉编译相关配置
+#     # set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/3rd_party/android-ndk-r25c/build/cmake/android.toolchain.cmake")
+#     # set(ANDROID_ABI "arm64-v8a") # 或 "armeabi-v7a"，根据你的设备架构
+#     # set(ANDROID_PLATFORM "android-24") # 或更高版本
+
+#     # set(Python3_EXECUTABLE "/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/bin/python3.12")
+#     # set(Python3_INCLUDE_DIRS "/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/python3.12")
+#     # set(Python3_LIBRARIES "/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/libpython3.12.so.1.0")
+#     # set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/3rd_party/android-ndk-r25c/build/cmake/android.toolchain.cmake")
+#     # set(ANDROID_ABI "arm64-v8a")
+#     # set(ANDROID_PLATFORM "android-24")
+
+#     set(PYBIND11_PYTHON_VERSION 3.12)
+#     set(Python3_INCLUDE_DIRS "/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/python3.12")
+#     set(Python3_LIBRARIES "/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/libpython3.12.so.1.0")
+#     set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/3rd_party/android-ndk-r25c/build/cmake/android.toolchain.cmake")
+#     set(ANDROID_ABI "arm64-v8a")
+#     set(ANDROID_PLATFORM "android-24")
+# else()
+#     message(FATAL_ERROR "Unsupported operating system: ${CMAKE_SYSTEM_NAME}")
+# endif()
+
+# find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+
+pybind11_add_module(allwinner_npu src/main.cpp)
+target_include_directories(allwinner_npu PRIVATE ${Python3_INCLUDE_DIRS})
+target_link_libraries(allwinner_npu PRIVATE ${Python3_LIBRARIES})
+
+# pybind11_add_module(allwinner_npu src/main.cpp)
+# target_include_directories(allwinner_npu PRIVATE /home/sd1/work/allwinner-npu-py/3rd_party/termux-python/python3.12)
+# target_link_libraries(allwinner_npu PRIVATE /home/sd1/work/allwinner-npu-py/3rd_party/termux-python/libpython3.12.so.1.0)
+
+target_compile_definitions(allwinner_npu PRIVATE VERSION_INFO="${EXAMPLE_VERSION_INFO}")

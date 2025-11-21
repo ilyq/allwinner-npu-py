@@ -1,7 +1,7 @@
 [
 {
   "directory": "/home/sd1/work/allwinner-npu-py/build",
-  "command": "/usr/bin/c++ -DVERSION_INFO=\\\"\\\" -Dallwinner_npu_EXPORTS -isystem /home/sd1/.local/share/uv/python/cpython-3.10.18-linux-x86_64-gnu/include/python3.10 -isystem /home/sd1/work/allwinner-npu-py/3rd_party/pybind11/include -O3 -DNDEBUG -fPIC -fvisibility=hidden -flto=auto -fno-fat-lto-objects -o CMakeFiles/allwinner_npu.dir/src/main.cpp.o -c /home/sd1/work/allwinner-npu-py/src/main.cpp",
+  "command": "/home/sd1/work/allwinner-npu-py/3rd_party/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android24 --sysroot=/home/sd1/work/allwinner-npu-py/3rd_party/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DPYBIND11_PYTHON_VERSION=3.12 -DVERSION_INFO=\\\"\\\" -Dallwinner_npu_EXPORTS -I/home/sd1/work/allwinner-npu-py/3rd_party/termux-python/python3.12 -I/home/sd1/work/allwinner-npu-py/3rd_party/pybind11/include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O3 -DNDEBUG  -fPIC -std=gnu++14 -o CMakeFiles/allwinner_npu.dir/src/main.cpp.o -c /home/sd1/work/allwinner-npu-py/src/main.cpp",
   "file": "/home/sd1/work/allwinner-npu-py/src/main.cpp"
 }
 ]
