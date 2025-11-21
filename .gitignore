@@ -114,3 +114,4 @@ static/
 *.pt
 
 .ruff_cache
+3rd_party/android-ndk-r25c/

@@ -18,3 +18,18 @@ python -c "import sysconfig; print(sysconfig.get_path('include'))"
 
 Python3_LIBRARIES（库文件路径）	
 python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))"
+
+
+clangd 配置语法提示和代码跳转
+```
+# 生成编译数据库
+cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+# 创建符号链接到项目根目录
+ln -sf build/compile_commands.json .
+```
+
+Android NDK 下载
+```
+https://github.com/android/ndk/wiki/Unsupported-Downloads
+```
