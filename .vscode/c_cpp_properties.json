@@ -29,6 +29,36 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
             }
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/3rd_party/npuruntime/**",
+                "${workspaceFolder}/3rd_party/npuruntime/include",
+                "${workspaceFolder}/3rd_party/pybind11/include"
+            ],
+            "defines": [
+                "USE_NPURUNTIME"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "macos-clang-arm64",
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}",
+                    "${workspaceFolder}/3rd_party/npuruntime/include",
+                    "${workspaceFolder}/3rd_party/npuruntime/include_85x",
+                    "${workspaceFolder}/3rd_party/pybind11/include"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+            }
         }
     ],
     "version": 4
