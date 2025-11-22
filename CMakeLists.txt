@@ -29,16 +29,27 @@ if(NOT EXISTS ${PYTHON_LIBRARY})
 endif()
 
 # 手动创建模块
-add_library(allwinner_npu SHARED src/main.cpp)
+add_library(allwinner_npu SHARED src/main.cpp
+    3rd_party/npuruntime/npulib.cpp
+    3rd_party/npuruntime/npu_util.cpp
+)
 
-# 设置包含目录
+# 设置包含目录 
 target_include_directories(allwinner_npu PRIVATE 
     ${PYTHON_INCLUDE_DIR}
     ${pybind11_INCLUDE_DIR}
+    ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime/include
+    ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime
 )
 
 # 设置链接库
-target_link_libraries(allwinner_npu PRIVATE ${PYTHON_LIBRARY})
+target_link_libraries(allwinner_npu PRIVATE ${PYTHON_LIBRARY}
+    ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime/lib_android/A733/arm64-v8a/libVIPhal.so
+    ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime/lib_android/A733/arm64-v8a/libNBGlinker.so
+    ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime/lib_android/compat/arm64-v8a/libVIPliteCompat.so
+    ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime/lib_android/libc++_shared.so
+    ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime/lib_android/libomp.so
+)
 
 # 设置编译选项
 target_compile_definitions(allwinner_npu PRIVATE 

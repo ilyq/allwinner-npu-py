@@ -115,3 +115,6 @@ static/
 
 .ruff_cache
 3rd_party/android-ndk-r25c/
+3rd_party/npuruntime/
+3rd_party/._npuruntime
+3rd_party/npuruntime.tar.gz
