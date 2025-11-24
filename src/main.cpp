@@ -50,9 +50,16 @@ public:
 
   py::array_t<float> infer(py::array_t<float> input) {
     py::buffer_info buf = input.request();
-    if ((unsigned int)buf.size * sizeof(float) != input_buffer_size) {
-      throw std::runtime_error("Input size  mismatch");
-    }
+    // if ((unsigned int)buf.size * sizeof(float) != input_buffer_size) {
+    //   throw std::runtime_error("Input size  mismatch");
+    // }
+
+    if (buf.ndim != 4 ||
+        buf.shape[0] != 1 ||
+        buf.shape[1] != 3 ||
+        buf.shape[2] != 224 ||
+        buf.shape[3] != 224)
+      throw std::runtime_error("Input must be 4D array with shape (1, 3, 224, 224)");
 
     memcpy(input_buffer_ptr, buf.ptr, input_buffer_size);
 
@@ -89,7 +96,4 @@ PYBIND11_MODULE(allwinner_npu, m) {
       .def(py::init<const std::string &, unsigned int>(), py::arg("model_file"),
            py::arg("malloc_mbyte") = 10)
       .def("infer", &AllWinnnerNPU::infer, py::arg("intput"));
-
-  m.def(
-      "greet", []() { return "Hello from C++!"; }, "返回问候语");
 }

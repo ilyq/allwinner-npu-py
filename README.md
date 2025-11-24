@@ -129,3 +129,28 @@ target_include_directories(allwinner_npu PRIVATE
     ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime
 )
 ```
+
+
+allwinner_npu修复依赖
+```
+~/allwinner $ patchelf --set-rpath '$ORIGIN' allwinner_npu.so
+~/allwinner $ patchelf --print-rpath allwinner_npu.so
+$ORIGIN
+
+~/allwinner $ ls
+1.jpg  allwinner_npu.so  app.py  bak  libc++_shared.so  libomp.so  mobilenetv2_pcq_a733.nb  readme.txt
+
+~/allwinner $ ldd allwinner_npu.so
+	libpython3.12.so.1.0 => not found
+	libVIPhal.so => /system/lib64/libVIPhal.so
+	libNBGlinker.so => /system/lib64/libNBGlinker.so
+	libVIPliteCompat.so => /system/lib64/libVIPliteCompat.so
+	libc++_shared.so => /data/data/com.termux/files/home/allwinner/libc++_shared.so
+	libomp.so => /data/data/com.termux/files/home/allwinner/libomp.so
+	libm.so => /system/lib64/libm.so
+	libdl.so => /system/lib64/libdl.so
+	libc.so => /system/lib64/libc.so
+	liblog.so => /system/lib64/liblog.so
+	libc++.so => /system/lib64/libc++.so
+	ld-android.so => /system/lib64/ld-android.so
+```
