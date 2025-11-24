@@ -6,12 +6,17 @@
 #include <vector>
 #include <iostream>
 
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+
 namespace py = pybind11;
 
 class AllWinnnerNPU {
 public:
   AllWinnnerNPU(const std::string &model_file, unsigned int malloc_mbyte = 10) {
     /* NPU初始化 */
+    cv::Mat image;
+    cv::Size size(100, 100);  // 这里应该能正常提示和跳转
     npu_uint = new NpuUint();
     int ret = npu_uint->npu_init();
     if (ret != 0)

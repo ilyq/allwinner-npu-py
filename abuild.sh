@@ -6,10 +6,11 @@ set -e
 export ANDROID_NDK_HOME=/home/sd1/work/allwinner-npu-py/3rd_party/android-ndk-r25c
 
 rm -rf build
-# cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPYBIND11_NOPYTHON=ON
+# cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DOpenCV_DIR=${CMAKE_SOURCE_DIR}/3rd_party/opencv/opencv-4.9.0-android/sdk/native/jni/abi-arm64-v8a
 # cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_SYSTEM_NAME=Android
 cmake -B build \
   -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -DCMAKE_SYSTEM_NAME=Android \
   -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
   -DANDROID_NDK=$ANDROID_NDK_HOME \

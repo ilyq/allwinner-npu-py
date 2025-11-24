@@ -28,8 +28,15 @@ if(NOT EXISTS ${PYTHON_LIBRARY})
     message(FATAL_ERROR "Python library not found: ${PYTHON_LIBRARY}")
 endif()
 
+# 设置opencv
+set(VCPKG_MANIFEST_MODE OFF)
+set(OpenCV_DIR ${CMAKE_SOURCE_DIR}/3rd_party/opencv/opencv-4.9.0-android/sdk/native/jni/abi-arm64-v8a)
+find_package(OpenCV REQUIRED)
+
 # 手动创建模块
 add_library(allwinner_npu SHARED src/allwinner_npu.cpp
+    src/yolov8_6_pre.cpp
+    src/yolov8_6_post.cpp
     3rd_party/npuruntime/npulib.cpp
     3rd_party/npuruntime/npu_util.cpp
 )
@@ -38,12 +45,14 @@ add_library(allwinner_npu SHARED src/allwinner_npu.cpp
 target_include_directories(allwinner_npu PRIVATE 
     ${PYTHON_INCLUDE_DIR}
     ${pybind11_INCLUDE_DIR}
+    ${OpenCV_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime/include
     ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime
 )
 
 # 设置链接库
-target_link_libraries(allwinner_npu PRIVATE ${PYTHON_LIBRARY}
+target_link_libraries(allwinner_npu PRIVATE ${PYTHON_LIBRARY} ${OpenCV_LIBS}
     ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime/lib_android/A733/arm64-v8a/libVIPhal.so
     ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime/lib_android/A733/arm64-v8a/libNBGlinker.so
     ${PROJECT_SOURCE_DIR}/3rd_party/npuruntime/lib_android/compat/arm64-v8a/libVIPliteCompat.so

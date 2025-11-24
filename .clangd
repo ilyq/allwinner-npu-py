@@ -1,0 +1,5 @@
+CompileFlags:
+  Add: 
+    -I${workspaceFolder}/3rd_party/opencv/opencv-4.9.0-android/sdk/native/jni/include
+    -I${workspaceFolder}/3rd_party/opencv/opencv-4.9.0-android/sdk/native/jni/include/opencv4
+  CompilationDatabase: build

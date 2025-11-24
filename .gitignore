@@ -118,3 +118,5 @@ static/
 3rd_party/npuruntime/
 3rd_party/._npuruntime
 3rd_party/npuruntime.tar.gz
+
+3rd_party/opencv
