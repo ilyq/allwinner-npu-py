@@ -9,6 +9,8 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
+extern int yolov8_postprocess(const char *imagepath, float **output);
+
 namespace py = pybind11;
 
 class AllWinnnerNPU {
@@ -58,9 +60,6 @@ public:
   py::list infer(py::array_t<float> input) {
     py::buffer_info buf = input.request();
 
-    // if ((unsigned int)buf.size * sizeof(float) != input_size)
-    //     throw std::runtime_error("Input tensor size mismatch.");
-
     memcpy(input_ptr, buf.ptr, input_size);
 
     int status = network->network_input_output_set();
@@ -74,13 +73,6 @@ public:
       throw std::runtime_error("Network run failed with error code: " +
                                std::to_string(status));
 
-
-    // 网络推理
-    status = network->network_run();
-    if (status != 0)
-      throw std::runtime_error("Network run failed with error code: " +
-                               std::to_string(status));
-
     // FP_NO_COPY 输出
     std::vector<output_info_s> outputs_info(output_cnt);
     network->get_output_fp_nocopy(outputs_info.data());
@@ -89,17 +81,12 @@ public:
     for (int i = 0; i < output_cnt; i++) {
         float* ptr = outputs_info[i].ptr;
         int len = outputs_info[i].length / sizeof(float);
-
-        // debug
-        float min_val = *std::min_element(ptr, ptr + len);
-        float max_val = *std::max_element(ptr, ptr + len);
-        float mean_val = std::accumulate(ptr, ptr + len, 0.0f) / len;
-        std::cout << "[Debug] output[" << i << "] len=" << len
-                  << " min=" << min_val << " max=" << max_val
-                  << " mean=" << mean_val << std::endl;
-
         py_outputs.append(py::array_t<float>(len, ptr));
+        output_ptrs[i] = ptr;
     }
+
+    yolov8_postprocess("input.png", output_ptrs.data());
+
     return py_outputs;
   }
 
