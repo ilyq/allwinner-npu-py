@@ -1,8 +1,10 @@
 #include "npulib.h"
+#include "pybind11/cast.h"
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace py = pybind11;
 
@@ -11,7 +13,7 @@ public:
   AllWinnnerNPU(const std::string &model_file, unsigned int malloc_mbyte = 10) {
     /* NPU初始化 */
     npu_uint = new NpuUint();
-    int ret = npu_uint->npu_init(malloc_mbyte * 1024 * 1024);
+    int ret = npu_uint->npu_init();
     if (ret != 0)
       throw std::runtime_error("NPU init failed with error code: " +
                                std::to_string(ret));
@@ -29,15 +31,15 @@ public:
       throw std::runtime_error("Network prepare failed with error code: " +
                                std::to_string(status));
 
-    network->get_network_input_buff_info(0, &input_buffer_ptr,
-                                         &input_buffer_size);
+    network->get_network_input_buff_info(0, &input_ptr, &input_size);
 
     output_cnt = network->get_output_cnt();
     output_data.resize(output_cnt);
-    int size0 = 1000;
-    output_data[0].resize(size0);
     output_ptrs.resize(output_cnt);
-    output_ptrs[0] = output_data[0].data();
+
+    for (int i = 0; i < output_cnt; i++) {
+      output_ptrs[i] = nullptr; // FP_NO_COPY
+    }
   }
 
   ~AllWinnnerNPU() {
@@ -48,20 +50,13 @@ public:
       delete npu_uint;
   }
 
-  py::array_t<float> infer(py::array_t<float> input) {
+  py::list infer(py::array_t<float> input) {
     py::buffer_info buf = input.request();
-    // if ((unsigned int)buf.size * sizeof(float) != input_buffer_size) {
-    //   throw std::runtime_error("Input size  mismatch");
-    // }
 
-    if (buf.ndim != 4 ||
-        buf.shape[0] != 1 ||
-        buf.shape[1] != 3 ||
-        buf.shape[2] != 224 ||
-        buf.shape[3] != 224)
-      throw std::runtime_error("Input must be 4D array with shape (1, 3, 224, 224)");
+    // if ((unsigned int)buf.size * sizeof(float) != input_size)
+    //     throw std::runtime_error("Input tensor size mismatch.");
 
-    memcpy(input_buffer_ptr, buf.ptr, input_buffer_size);
+    memcpy(input_ptr, buf.ptr, input_size);
 
     int status = network->network_input_output_set();
     if (status != 0)
@@ -74,26 +69,51 @@ public:
       throw std::runtime_error("Network run failed with error code: " +
                                std::to_string(status));
 
-    network->get_output(output_ptrs.data());
 
-    return py::array_t<float>(output_data[0].size(), output_data[0].data());
+    // 网络推理
+    status = network->network_run();
+    if (status != 0)
+      throw std::runtime_error("Network run failed with error code: " +
+                               std::to_string(status));
+
+    // FP_NO_COPY 输出
+    std::vector<output_info_s> outputs_info(output_cnt);
+    network->get_output_fp_nocopy(outputs_info.data());
+
+    py::list py_outputs;
+    for (int i = 0; i < output_cnt; i++) {
+        float* ptr = outputs_info[i].ptr;
+        int len = outputs_info[i].length / sizeof(float);
+
+        // debug
+        float min_val = *std::min_element(ptr, ptr + len);
+        float max_val = *std::max_element(ptr, ptr + len);
+        float mean_val = std::accumulate(ptr, ptr + len, 0.0f) / len;
+        std::cout << "[Debug] output[" << i << "] len=" << len
+                  << " min=" << min_val << " max=" << max_val
+                  << " mean=" << mean_val << std::endl;
+
+        py_outputs.append(py::array_t<float>(len, ptr));
+    }
+    return py_outputs;
   }
 
 private:
   NpuUint *npu_uint = nullptr;
   NetworkItem *network = nullptr;
-  void *input_buffer_ptr = nullptr;
-  unsigned int input_buffer_size = 0;
+  void *input_ptr = nullptr;
+  unsigned int input_size = 0;
   int output_cnt = 0;
   std::vector<std::vector<float>> output_data;
   std::vector<float *> output_ptrs;
 };
 
 PYBIND11_MODULE(allwinner_npu, m) {
-  m.doc() = "pybind11 绑定C++数学工具库示例（无独立头文件）";
+  m.doc() = "Allwinner NPU Inference";
 
   py::class_<AllWinnnerNPU>(m, "AllWinnnerNPU")
-      .def(py::init<const std::string &, unsigned int>(), py::arg("model_file"),
+      .def(py::init<const std::string &, unsigned int>(),
+           py::arg("model_file"),
            py::arg("malloc_mbyte") = 10)
       .def("infer", &AllWinnnerNPU::infer, py::arg("intput"));
 }

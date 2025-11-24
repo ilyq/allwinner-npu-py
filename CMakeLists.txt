@@ -29,7 +29,7 @@ if(NOT EXISTS ${PYTHON_LIBRARY})
 endif()
 
 # 手动创建模块
-add_library(allwinner_npu SHARED src/main.cpp
+add_library(allwinner_npu SHARED src/allwinner_npu.cpp
     3rd_party/npuruntime/npulib.cpp
     3rd_party/npuruntime/npu_util.cpp
 )
