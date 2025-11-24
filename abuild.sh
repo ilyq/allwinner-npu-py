@@ -15,6 +15,7 @@ cmake -B build \
   -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
   -DANDROID_NDK=$ANDROID_NDK_HOME \
   -DANDROID_ABI=arm64-v8a \
-  -DANDROID_PLATFORM=android-24
+  -DANDROID_PLATFORM=android-24 \
+  -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 cmake --build build
 

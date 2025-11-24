@@ -19,4 +19,22 @@
   "ruff.path": ["./.venv/bin/ruff", "ruff"],
   "ruff.importStrategy": "fromEnvironment",
 
+  "clangd.path": "/usr/bin/clangd",
+  "clangd.arguments": [
+    "--background-index",
+    "--clang-tidy",
+    "--completion-style=detailed",
+    "--header-insertion=never",
+    "--query-driver=/usr/bin/g++",
+    "--all-scopes-completion",
+    "--log=verbose",
+    "--pretty"
+  ],
+  "clangd.checkUpdates": true,
+  "clangd.serverCompletionRanking": true,
+
+  // 禁用 C/C++ 扩展的 IntelliSense，避免冲突
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "C_Cpp.autocomplete": "disabled",
+  "C_Cpp.errorSquiggles": "disabled"
 }
