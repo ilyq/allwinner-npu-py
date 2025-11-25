@@ -35,8 +35,8 @@ find_package(OpenCV REQUIRED)
 
 # 手动创建模块
 add_library(allwinner_npu SHARED src/allwinner_npu.cpp
-    src/yolov8_6_pre.cpp
-    src/yolov8_6_post.cpp
+    src/class_post.cpp
+    src/class_pre.cpp
     3rd_party/npuruntime/npulib.cpp
     3rd_party/npuruntime/npu_util.cpp
 )
