@@ -3,7 +3,7 @@
  * Author:     Penng
  * Date:    2023/01/16
  */
-
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +12,7 @@
 
 #include "npulib.h"
 
+namespace py = pybind11;
 /*-------------------------------------------
         Macros and Variables
 -------------------------------------------*/
@@ -65,54 +66,34 @@ public:
     }
   }
 
-  void infer(const std::string &input_file, unsigned int loop_count) {
+  py::array_t<float> infer(const std::string &input_file) {
     int status = 0;
-    unsigned int count = 0;
-    long long total_infer_time = 0;
     void *input_buffer_ptr = nullptr;
     unsigned int input_buffer_size = 0;
     mbv2.get_network_input_buff_info(0, &input_buffer_ptr, &input_buffer_size);
     class_preprocess(input_file.c_str(), input_buffer_ptr, input_buffer_size);
     int output_cnt = mbv2.get_output_cnt();
+    int size0 = 1280; // 特征层维度
+    float *output = new float[size0];
     float **output_data = new float *[output_cnt]();
-    int size0 = 1 * 1000;
-    output_data[0] = new float[size0];
-    TimeBegin(NETWORK_LOOP);
-    while (count < loop_count) {
-      count++;
-      status = mbv2.network_input_output_set();
-      if (status != 0) {
-        throw std::runtime_error("network_input_output_set failed");
-      }
-#if defined(__linux__)
-      TimeBegin(NETWORK_RUN);
-#endif
-      status = mbv2.network_run();
-      if (status != 0) {
-        throw std::runtime_error("network_run failed");
-      }
-#if defined(__linux__)
-      TimeEnd(NETWORK_RUN);
-      printf("run time for this network: %lu us.\n",
-             (unsigned long)TimeGet(NETWORK_RUN));
-#endif
-      total_infer_time += (unsigned long)TimeGet(NETWORK_RUN);
-      mbv2.get_output(output_data);
-      class_postprocess(input_file.c_str(), output_data);
+    output_data[0] = output;
+
+    status = mbv2.network_input_output_set();
+    if (status != 0)
+      throw std::runtime_error("network_input_output_set failed");
+    status = mbv2.network_run();
+    if (status != 0)
+      throw std::runtime_error("network_run failed");
+    mbv2.get_output(output_data);
+
+    for (int i = 0; i < 10; ++i) {
+      printf("output[%d]=%f\n", i, output[i]);
     }
-    TimeEnd(NETWORK_LOOP);
-    if (loop_count > 1) {
-      printf(
-          "this network run avg inference time=%d us,  total avg cost: %d us\n",
-          (uint32_t)(total_infer_time / loop_count),
-          (unsigned int)(TimeGet(NETWORK_LOOP) / loop_count));
-    }
-    for (int i = 0; i < output_cnt; i++) {
-      delete[] output_data[i];
-      output_data[i] = nullptr;
-    }
-    if (output_data != nullptr)
-      delete[] output_data;
+
+    py::array_t<float> result(size0, output);
+    delete[] output;
+    delete[] output_data;
+    return result;
   }
 
 private:
@@ -121,7 +102,6 @@ private:
   unsigned int network_id;
 };
 
-namespace py = pybind11;
 PYBIND11_MODULE(allwinner_npu, m) {
   py::class_<AllwinnerNPU>(m, "AllwinnerNPU")
       .def(py::init<const std::string &, unsigned int>())
